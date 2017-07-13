@@ -96,6 +96,8 @@ public class BeWithFramework {
 			howtouse();
 			System.exit(0);	
 		}
+
+		boolean threetypes=true;
 		
 		//	Parsing passing instructions
 		for (i=0;i<args.length;i++)
@@ -119,6 +121,12 @@ public class BeWithFramework {
 					break;
 				case "-k":
 					numClus = Integer.parseInt(args[i+1])+1;	// actual number of clusters, the cluster of unselected genes is k+1
+					break;
+				case "-3types":
+					if (args[i+1].equals("no"))
+						threetypes=false;
+					else
+						threetypes=true;
 					break;
 				default:
 					System.out.println("ERROR: Invalid passing instructions.");
@@ -478,17 +486,41 @@ public class BeWithFramework {
 				writer.println(" <= 0");
 			}
 			
-			//	to enforce there are two other types of edges in the solution
+			//	to enforce there are one of other types of edges in the solution
 			if (method.equals("becowithmefun")){
-				writer.print(" becowithmefunConstr : ");
-				for (i = 0; i < n; i++) 
-					for (int j1 : UG[i]) {
-						j = j1;
-						if ((MeG[i][j] > 0.0)||(G[i][j] > 0.0))
-						for (k = 1; k <= numClus - 1; k++) 
-							writer.print(" + "+var("x", i, j, k));
-					}
-				writer.println(" >= 0.99");	
+				if (!threetypes){
+					writer.print(" becowithmefunConstr : ");
+					for (i = 0; i < n; i++) 
+						for (int j1 : UG[i]) {
+							j = j1;
+							if ((MeG[i][j] > 0.0)||(G[i][j] > 0.0))
+							for (k = 1; k <= numClus - 1; k++) 
+								writer.print(" + "+var("x", i, j, k));
+						}
+					writer.println(" >= 0.99");
+				}
+				else{
+					
+					writer.print(" becowithmefunConstr1 : ");
+					for (i = 0; i < n; i++) 
+						for (int j1 : UG[i]) {
+							j = j1;
+							if (G[i][j] > 0.0)
+							for (k = 1; k <= numClus - 1; k++) 
+								writer.print(" + "+var("x", i, j, k));
+						}
+					writer.println(" >= 0.99");
+					
+					writer.print(" becowithmefunConstr2 : ");
+					for (i = 0; i < n; i++) 
+						for (int j1 : UG[i]) {
+							j = j1;
+							if (MeG[i][j] > 0.0)
+							for (k = 1; k <= numClus - 1; k++) 
+								writer.print(" + "+var("x", i, j, k));
+						}
+					writer.println(" >= 0.99");
+				}	
 			}
 			
 			// to enforce the density of each module
@@ -498,7 +530,7 @@ public class BeWithFramework {
 				for (i = 0; i < n; i++) {
 					// if (AGL[i].size()>0){
 					count++;
-					double d = 0.699f;
+					double d = 0.49f;
 					sum = (float) ((MAXMODULESIZE - 1.0f) * d);
 
 					writer.print(" DensityConstr" + count + ": -" + (sum + d) + " " + var("y", i, k));
@@ -611,7 +643,7 @@ public class BeWithFramework {
             
             System.out.println("CPLEX finished solving ILP model.\n");
 			
-            System.out.println("Reading output soluton from CPLEX.\n");
+            System.out.println("Reading output solution from CPLEX.\n");
     		count=0;
     		int clus;
     		String outputResultFile=outputPrefix+"_"+(numClus-1)+"_modules";
@@ -621,6 +653,14 @@ public class BeWithFramework {
     		for (i=0;i<numClus-1;i++)
     			modules[i]=new HashSet<Integer>();
     		
+			if (!(new File(solutionLPFile).exists())){
+				if (method.equals("becowithmefun"))
+					System.out.println("Enforcing three types of edges might be too strict. Please add -3types no and try again !");
+				else
+					System.out.println("No solution exists !");
+				System.exit(1);
+			}
+
 			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(solutionLPFile)));
 			String pattern="y_([0-9]*)_([0-9]*)";
 			String yvalues="value=\"(.*?)\"/>";
@@ -697,4 +737,3 @@ public class BeWithFramework {
 		}
 	}
 }
-
