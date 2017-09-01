@@ -530,7 +530,7 @@ public class BeWithFramework {
 				for (i = 0; i < n; i++) {
 					// if (AGL[i].size()>0){
 					count++;
-					double d = 0.49f;
+					double d = 0.69f;
 					sum = (float) ((MAXMODULESIZE - 1.0f) * d);
 
 					writer.print(" DensityConstr" + count + ": -" + (sum + d) + " " + var("y", i, k));
