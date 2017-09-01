@@ -80,7 +80,7 @@ Here we will go through an example of running BeWith framework. The provided dat
 We utilize **BeWith** to find co-occurrence modules which are mutually exclusive to each other. In other words, genes within each modules have co-occurring mutation and pairs of genes belong to different modules likely have mutually exclusive mutations. In what follows, we utilize **BeWith** to find five such modules using *bemewithco* option: 
 
 ```
-java -jar BeWithFramework.jar -m bemewithco -k 5 -o BRCA_bemewithco -me data/BRCA_me_WESME.txt -co data/BRCA_co.txt
+java -jar target/BeWithFramework.jar -m bemewithco -k 5 -o BRCA_bemewithco -me data/BRCA_me_WESME.txt -co data/BRCA_co.txt
 ```
 
 If there are no errors, the summary of the results should be in the file *BRCA_bemewithco_5_modules* and looks like this:
